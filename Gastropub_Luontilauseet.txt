@@ -1,0 +1,139 @@
+DROP DATABASE IF EXISTS GastroPub_X;
+
+CREATE DATABASE GastroPub_X;
+
+USE GastroPub_X;
+
+
+-- TYÖNTEKIJÄ
+
+CREATE TABLE TYONTEKIJA (
+ttNro SMALLINT PRIMARY KEY,
+nimi CHAR(100) NOT NULL,
+sPosti CHAR(50),
+puhelin CHAR(15),
+osoite CHAR(100)
+);
+
+
+-- TYÖSUHDE
+
+CREATE TABLE TYOSUHDE (
+tsNro SMALLINT PRIMARY KEY,
+ttNro SMALLINT NOT NULL,
+nimike CHAR(30),
+alkuPvm DATE NOT NULL,
+loppuPvm DATE,
+palkka DECIMAL(6,2),
+	CONSTRAINT tyontekija_ts_fk FOREIGN KEY (ttNro) REFERENCES TYONTEKIJA (ttNro)
+);
+
+
+-- TUOTERYHMÄ
+
+CREATE TABLE TUOTERYHMA (
+trnro SMALLINT NOT NULL,
+trnimi CHAR(30),
+PRIMARY KEY (trnro)
+);
+
+
+-- TUOTE
+
+CREATE TABLE TUOTE (
+tuoteNro SMALLINT NOT NULL,
+tuotenimi CHAR(30),
+trnro SMALLINT,
+varastoSaldo DECIMAL(6,2),
+PRIMARY KEY (tuoteNro),
+CONSTRAINT tuoteryhma_fk FOREIGN KEY (trnro) REFERENCES TUOTERYHMA (trnro)
+);
+
+
+-- TAPAHTUMA
+
+CREATE TABLE TAPAHTUMA (
+tapahtumaNro SMALLINT PRIMARY KEY,
+tapahtumatyyppi CHAR(50),
+esiintyja CHAR(100),
+palkkio DECIMAL(6,2),
+tuoteNro SMALLINT,
+CONSTRAINT tuote_t_fk FOREIGN KEY (tuoteNro) REFERENCES TUOTE (tuoteNro)
+);
+
+
+
+-- TYÖVUORO
+
+CREATE TABLE TYOVUORO (
+tvNro SMALLINT PRIMARY KEY,
+ttNro SMALLINT NOT NULL,
+pvm DATE,
+alkaa_klo DATETIME NOT NULL,
+loppuu_klo DATETIME NOT NULL,
+tehtava CHAR(50),
+tapahtumaNro SMALLINT,
+poissaolo BOOLEAN,
+	CONSTRAINT tyontekija_tv_fk FOREIGN KEY (ttNro) REFERENCES TYONTEKIJA (ttNro),
+	CONSTRAINT tapahtuma_fk FOREIGN KEY (tapahtumaNro) REFERENCES TAPAHTUMA (tapahtumaNro)
+);
+		-- MYYNTI
+
+CREATE TABLE MYYNTI (
+m_ID SMALLINT NOT NULL,
+tuoteNro SMALLINT,
+maara INT,
+myynti_Pvm DATE,
+PRIMARY KEY (m_ID),
+CONSTRAINT tuote_m_fk FOREIGN KEY (tuoteNro) REFERENCES TUOTE (tuoteNro)
+);
+
+-- OSTO
+
+CREATE TABLE OSTO (
+o_ID SMALLINT NOT NULL,
+tuoteNro SMALLINT,
+maara INT,
+osto_Pvm DATE,
+PRIMARY KEY (o_ID),
+CONSTRAINT tuote_o_fk FOREIGN KEY (tuoteNro) REFERENCES TUOTE (tuoteNro)
+);
+
+
+-- ETUTASO
+
+CREATE TABLE ETUTASO(
+etNro SMALLINT,
+et_nimi char(30),
+PRIMARY KEY (etNro)
+);
+
+
+-- HINTA
+
+CREATE TABLE HINTA(
+hinta_ID SMALLINT,
+tuoteNro SMALLINT,
+Hinta decimal, 
+Kustannus decimal,
+alkuPvm date NOT NULL,
+loppuPvm date,
+etNro SMALLINT,
+alePros decimal,
+PRIMARY KEY (hinta_ID),
+CONSTRAINT tuote_fk FOREIGN KEY (tuoteNro) REFERENCES tuote (tuoteNro),
+CONSTRAINT etutaso_h_fk FOREIGN KEY (etNro) REFERENCES etutaso (etNro));
+
+
+-- KANTA-ASIAKAS
+
+CREATE TABLE KANTA_ASIAKAS(
+asNro SMALLINT,
+asnimi CHAR(50) NOT NULL,
+sposti CHAR(50), 
+puhelin CHAR(15),
+osoite CHAR(30),
+etNro SMALLINT,
+PRIMARY KEY (asNro),
+CONSTRAINT etutaso_ka_fk FOREIGN KEY (etNro) REFERENCES etutaso (etNro)
+);
